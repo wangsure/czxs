@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+{% load nvd3_tags %}
+<head>
+    <meta charset="UTF-8">
+    <!--手机html -->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <title>{{website_title}}</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico"/>
+    <link rel="bookmark" href="/static/img/favicon.ico"/>
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/vmaig.css">
+    <link rel="stylesheet" href="/static/css/vmaig_comments.css">
+    <link rel="stylesheet" href="/static/css/vmaig_auth.css">
+    <link rel="stylesheet" href="/static/jquery/jquery.Jcrop.min.css">
+
+    <script src="/static/jquery/jquery-2.1.3.min.js"></script>
+    <script src="/static/jquery/jquery.cookie.js"></script>
+    <script src="/static/jquery/jquery.form.js"></script>
+    <script src="/static/jquery/jquery.Jcrop.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+    {% block css%} {% endblock%}
+</head>
+<body id="vmaig">
+    <!-- 导航栏 -->
+    {% include "./blog/include/nav.html"%}
+    <!-- 分析报告列表 与 侧边的东西 -->
+    <div id="vmaig-main">
+        <div id="vmaig-content" class="container">
+            {%block main%} {% endblock %}
+        </div>
+        <footer>
+           <div class="container">
+               <p class="text-center">北京创智新水大数据智能科技有限公司, <a href="/sitemap.xml">京ICP备16070562-1</a></p>
+           </div>
+        </footer>
+    </div>
+    <div>{%block testdiv%} {% endblock %}</div>
+
+</body>
+
+
+<script type="text/javascript" src="/static/js/vmaig.js"></script>
+{% block js%}{% endblock%}
+
+</html>

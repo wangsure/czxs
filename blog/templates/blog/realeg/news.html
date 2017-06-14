@@ -1,0 +1,459 @@
+{% extends "./blog/base.html" %}
+{% load nvd3_tags %}
+{% block main %}
+<div class=" well col-md-9 col-lg-12">
+    <h1>土壤各土层墒情数据</h1>
+    {% include_container chartcontainer 600 '100%' %}
+</div>
+<div class=" well col-md-9 col-lg-12" id="content">
+
+	<form id="side_panel">
+		<h1>Random Data in the Future</h1>
+		<section><div id="legend"></div></section>
+		<section>
+			<div id="renderer_form" class="toggler">
+				<input type="radio" name="renderer" id="area" value="area" checked>
+				<label for="area">area</label>
+				<input type="radio" name="renderer" id="bar" value="bar">
+				<label for="bar">bar</label>
+				<input type="radio" name="renderer" id="line" value="line">
+				<label for="line">line</label>
+				<input type="radio" name="renderer" id="scatter" value="scatterplot">
+				<label for="scatter">scatter</label>
+			</div>
+		</section>
+		<section>
+			<div id="offset_form">
+				<label for="stack">
+					<input type="radio" name="offset" id="stack" value="zero" checked>
+					<span>stack</span>
+				</label>
+				<label for="stream">
+					<input type="radio" name="offset" id="stream" value="wiggle">
+					<span>stream</span>
+				</label>
+				<label for="pct">
+					<input type="radio" name="offset" id="pct" value="expand">
+					<span>pct</span>
+				</label>
+				<label for="value">
+					<input type="radio" name="offset" id="value" value="value">
+					<span>value</span>
+				</label>
+			</div>
+			<div id="interpolation_form">
+				<label for="cardinal">
+					<input type="radio" name="interpolation" id="cardinal" value="cardinal" checked>
+					<span>cardinal</span>
+				</label>
+				<label for="linear">
+					<input type="radio" name="interpolation" id="linear" value="linear">
+					<span>linear</span>
+				</label>
+				<label for="step">
+					<input type="radio" name="interpolation" id="step" value="step-after">
+					<span>step</span>
+				</label>
+			</div>
+		</section>
+		<section>
+			<h6>Smoothing</h6>
+			<div id="smoother"></div>
+		</section>
+		<section></section>
+	</form>
+
+	<div id="chart_container">
+		<div id="chart"></div>
+		<div id="timeline"></div>
+		<div id="preview"></div>
+	</div>
+
+</div>
+
+<script>
+
+// set up our data series with 150 random data points
+
+var seriesData = [ [], [], [], [], [], [], [], [], [] ];
+var random = new Rickshaw.Fixtures.RandomData(150);
+
+for (var i = 0; i < 150; i++) {
+	random.addData(seriesData);
+}
+
+var palette = new Rickshaw.Color.Palette( { scheme: 'classic9' } );
+
+// instantiate our graph!
+
+var graph = new Rickshaw.Graph( {
+	element: document.getElementById("chart"),
+	width: 900,
+	height: 500,
+	renderer: 'area',
+	stroke: true,
+	preserve: true,
+	series: [
+		{
+			color: palette.color(),
+			data: seriesData[0],
+			name: 'Moscow'
+		}, {
+			color: palette.color(),
+			data: seriesData[1],
+			name: 'Shanghai'
+		}, {
+			color: palette.color(),
+			data: seriesData[2],
+			name: 'Amsterdam'
+		}, {
+			color: palette.color(),
+			data: seriesData[3],
+			name: 'Paris'
+		}, {
+			color: palette.color(),
+			data: seriesData[4],
+			name: 'Tokyo'
+		}, {
+			color: palette.color(),
+			data: seriesData[5],
+			name: 'London'
+		}, {
+			color: palette.color(),
+			data: seriesData[6],
+			name: 'New York'
+		}
+	]
+} );
+
+graph.render();
+
+var preview = new Rickshaw.Graph.RangeSlider( {
+	graph: graph,
+	element: document.getElementById('preview'),
+} );
+
+var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+	graph: graph,
+	xFormatter: function(x) {
+		return new Date(x * 1000).toString();
+	}
+} );
+
+var annotator = new Rickshaw.Graph.Annotate( {
+	graph: graph,
+	element: document.getElementById('timeline')
+} );
+
+var legend = new Rickshaw.Graph.Legend( {
+	graph: graph,
+	element: document.getElementById('legend')
+
+} );
+
+var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+	graph: graph,
+	legend: legend
+} );
+
+var order = new Rickshaw.Graph.Behavior.Series.Order( {
+	graph: graph,
+	legend: legend
+} );
+
+var highlighter = new Rickshaw.Graph.Behavior.Series.Highlight( {
+	graph: graph,
+	legend: legend
+} );
+
+var smoother = new Rickshaw.Graph.Smoother( {
+	graph: graph,
+	element: document.querySelector('#smoother')
+} );
+
+var ticksTreatment = 'glow';
+
+var xAxis = new Rickshaw.Graph.Axis.Time( {
+	graph: graph,
+	ticksTreatment: ticksTreatment,
+	timeFixture: new Rickshaw.Fixtures.Time.Local()
+} );
+
+xAxis.render();
+
+var yAxis = new Rickshaw.Graph.Axis.Y( {
+	graph: graph,
+	tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+	ticksTreatment: ticksTreatment
+} );
+
+yAxis.render();
+
+
+var controls = new RenderControls( {
+	element: document.querySelector('form'),
+	graph: graph
+} );
+
+// add some data every so often
+
+var messages = [
+	"Changed home page welcome message",
+	"Minified JS and CSS",
+	"Changed button color from blue to green",
+	"Refactored SQL query to use indexed columns",
+	"Added additional logging for debugging",
+	"Fixed typo",
+	"Rewrite conditional logic for clarity",
+	"Added documentation for new methods"
+];
+
+setInterval( function() {
+	random.removeData(seriesData);
+	random.addData(seriesData);
+	graph.update();
+
+}, 3000 );
+
+function addAnnotation(force) {
+	if (messages.length > 0 && (force || Math.random() >= 0.95)) {
+		annotator.add(seriesData[2][seriesData[2].length-1].x, messages.shift());
+		annotator.update();
+	}
+}
+
+addAnnotation(true);
+setTimeout( function() { setInterval( addAnnotation, 6000 ) }, 6000 );
+
+var previewXAxis = new Rickshaw.Graph.Axis.Time({
+	graph: preview.previews[0],
+	timeFixture: new Rickshaw.Fixtures.Time.Local(),
+	ticksTreatment: ticksTreatment
+});
+
+previewXAxis.render();
+
+</script>
+{% endblock %}
+{% block js%}
+
+
+
+<script src="/static/highslide/highslide-with-html.min.js"></script> 
+<script language="javascript" type="text/javascript">
+    hs.graphicsDir = '/static/highslide/graphics/';
+    hs.outlineType = 'rounded-white';
+    hs.showCredits = false;
+    hs.wrapperClassName = 'draggable-header';
+    hs.marginTop = 70;
+
+</script>
+
+
+
+{#extention#}
+<script src="/templates/blog/vendor/d3.v3.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script>
+    jQuery.noConflict();
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+
+<script src="/templates/blog/src/js/Rickshaw.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Class.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Compat.ClassList.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Renderer.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Renderer.Area.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Renderer.Line.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Renderer.Bar.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Renderer.ScatterPlot.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Renderer.Stack.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.RangeSlider.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.RangeSlider.Preview.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.HoverDetail.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Annotate.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Legend.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Axis.Time.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Behavior.Series.Toggle.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Behavior.Series.Order.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Behavior.Series.Highlight.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Smoother.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Fixtures.Time.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Fixtures.Time.Local.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Fixtures.Number.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Fixtures.RandomData.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Fixtures.Color.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Color.Palette.js"></script>
+<script src="/templates/blog/src/js/Rickshaw.Graph.Axis.Y.js"></script>
+<script src="/templates/blog/realeg/js/extensions.js"></script>
+    {#extention#}
+
+{% endblock%}
+
+
+{% block css%}
+
+
+
+<link rel="stylesheet" href="/static/highslide/highslide.css">
+<style type="text/css">
+
+    /*手机端控制弹出框宽度*/
+    @media screen and (max-width: 400px) {
+        .highslide-body {
+            width:320px !important;
+        }
+
+        .highslide-html {
+            width:320px !important;
+        }
+
+        .highslide-html-content{
+            width:325px !important;
+        }
+
+        .highslide-html-blur{
+            width:320px !important;
+        }
+    }
+
+    .highslide-header  {
+        height:30px !important;
+    }
+    .highslide-heading {
+        font-size:18px !important;
+
+        max-width: 90%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: inline-block!important;
+        overflow: hidden;
+    }
+
+    .timeline {
+        list-style: none;
+        position: relative;
+    }
+
+
+    .timeline:before{
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background: #D94600;
+        left: 10%;
+    }
+
+    .timeline li{
+        position: relative;
+    }
+
+    .timeline-time {
+        margin-left:10%;
+        margin-bottom:10px;
+    }
+
+    .timeline-time>span:last-child {
+        font-size: 18px;
+        color: #FFFF00;
+        font-weight: bold;
+    }
+
+    .timeline-time div {
+        font-size:16px;
+    }
+
+    .timeline-time div span:first-child {
+        font-size: 18px;
+        color: #FFFF00;
+        font-weight: bold;
+
+    }
+
+    .timeline-ico {
+        width: 10px;
+        height: 10px;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        font-size: 1.4em;
+        line-height: 40px;
+        position: absolute;
+        color: #fff;
+        background: #eee;
+        border-radius: 50%;
+        box-shadow: 0 0 0 8px #D94600;
+        text-align: center;
+        left: 10%;
+        top: 0;
+        margin: 0 0 0 -38px;
+    }
+
+    .timeline-content {
+        margin: 0 0 15px 10%;
+        background-color: rgba(0,0,0,0.6);
+        padding:10px;
+    }
+
+    .label-news{
+        display:inline-block;
+        font-size:14px;
+        max-width:100%;
+        margin:3px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: inline-block;
+        overflow: hidden;
+
+    }
+
+    .timeline-select {
+        position: fixed;
+        top:70px;
+        left:20px;
+    }
+
+    .label-oschina {
+        background-color: #5cb85c;
+    }
+
+    .label-chiphell {
+        background-color: #d9534f;
+    }
+
+    .label-cnBeta {
+        background-color: #337ab7;
+    }
+
+    .label-freebuf {
+        background-color: #f0ad4e;
+    }
+
+</style>
+    {% include_chart_jscss %}
+    {# Jquery CDN : Needed when using jquery_on_ready=True #}
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    {% load_chart charttype chartdata chartcontainer extra %}
+    {% load_chart charttype1 chartdata1 chartcontainer1 extra1 %}
+
+
+
+
+
+{#    extention#}
+
+<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
+<link type="text/css" rel="stylesheet" href="/templates/blog/src/css/graph.css">
+<link type="text/css" rel="stylesheet" href="/templates/blog/src/css/detail.css">
+<link type="text/css" rel="stylesheet" href="/templates/blog/src/css/legend.css">
+<link type="text/css" rel="stylesheet" href="/templates/blog/realeg/css/extensions.css?v=2">
+
+{#    extension#}
+{% endblock %}

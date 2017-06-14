@@ -1,0 +1,177 @@
+{% extends "./blog/base.html" %}
+{% load nvd3_tags %}
+{% block main %}
+
+
+{#<div class="input-group">#}
+{#    <input type="text" class="form-control">#}
+{#    <div class="input-group-btn">#}
+{#        <button type="button" class="btn btn-default" tabindex="-1">查询区域</button>#}
+{#        <button type="button" class="btn btn-default#}
+{#        dropdown-toggle" data-toggle="dropdown" tabindex="-1">#}
+{#            <span class="caret"></span>#}
+{#            <span class="sr-only">查询区域</span>#}
+{#        </button>#}
+{#        <ul class="dropdown-menu pull-right">#}
+{#            <li>#}
+{#                <a href="#">按名称</a>#}
+{#            </li>#}
+{#            <li class="divider"></li>#}
+{#            <li>#}
+{#                <a href="#">按区域</a>#}
+{#            </li>#}
+{#        </ul>#}
+{#    </div><!-- /btn-group -->#}
+{#</div><!-- /input-group -->#}
+<div class=" well col-md-9 col-lg-12 ">
+    <h2>监测点与设备分布</h2>
+{#     <dl>#}
+{#        {% for poi in pois %}#}
+{#            <dt>{{ poi.name }}</dt>#}
+{#            <dd>{{ poi.position }}</dd>#}
+{#        {% endfor %}#}
+{#    </dl>#}
+    <div id="map"></div>
+    <script>
+        var map;
+        var v="";
+        function showinforwindows_onout(marker0,contentString) {
+
+
+            var infowindow = new google.maps.InfoWindow({
+              content: contentString
+            });
+
+
+            marker0.addListener('mouseon', function() {
+                infowindow.open(map, marker0);
+            });
+
+            marker0.addListener('mouseout', function() {
+                infowindow.close();
+            });
+
+        }
+        function showinforwindows(marker0,contentString) {
+
+
+            var infowindow = new google.maps.InfoWindow({
+              content: contentString
+            });
+            marker0.addListener('click', function() {
+                infowindow.open(map, marker0);
+            });
+
+
+        }
+        function createClickableCircle( circle, info){
+            var infowindow =new google.maps.InfoWindow({
+                content: info
+            });
+            circle.addListener( 'click', function(ev) {
+                // alert(infowindow.content);
+                infowindow.setPosition(circle.getCenter());
+                infowindow.open(map);
+            });
+{#            circle.addListener( 'mouseout', function(ev) {#}
+{#                infowindow.close();#}
+{#            });#}
+        }
+
+
+      function initMap() {
+
+        var uluru = {lat: 39.904211, lng: 116.40739499999995};
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 10,
+          center: uluru
+        });
+
+
+
+        {% for poi in poisensor %}
+
+
+            var contentString = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h1 id="firstHeading" class="firstHeading">传感器:{{ poi.en_title }}</h1>'+
+            '<div id="bodyContent">'+
+            '<p>所处监测点:{{ poi.site }};所属用户:{{ poi.author }};所属分组:{{ poi.category }};更新时间:{{ poi.update_time }}'+
+            '.</p>'+
+            '<p><a href="/xadmin/blog/sensorm/{{ poi.id }}/update/">'+
+            '详细信息及更改</a> '+
+            '.</p>'+
+            '</div>'+
+            '</div>';
+            var image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
+            var po = {lat: {{ poi.position.latitude }}, lng: {{ poi.position.longitude }} };
+            var marker0 = new google.maps.Marker({
+                position: po,
+                map: map,
+                title: '{{ poi.en_title }}',
+                icon:image
+            });
+            showinforwindows(marker0,contentString);
+
+
+
+
+
+        {% endfor %}
+
+
+        {% for poi in poissite %}
+            var contentString = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h1 id="firstHeading" class="firstHeading">监测点:{{ poi.name }}</h1>'+
+            '<div id="bodyContent">'+
+            '<p>监测点名称:{{ poi.name }};所属用户:{{ poi.author }};所属分组:{{ poi.parent }};区域半径:{{ poi.rank }};更新时间:{{ poi.create_time }}'+
+            '.</p>'+
+            '<p><a href="/xadmin/blog/sitem/{{ poi.id }}/update/">'+
+            '详细信息及更改</a> '+
+            '.</p>'+
+            '</div>'+
+            '</div>';
+            var centroid_site = {lat: {{ poi.position.latitude }}, lng: {{ poi.position.longitude }}};
+            var cityCircle = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: centroid_site,
+            title: '{{ poi.name }}',
+            radius: {{ poi.rank }}
+            });
+            createClickableCircle(cityCircle,contentString);
+
+        {% endfor %}
+
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtUU-3k6Uv1yByDSAIF0bB6On3CMHooPM&callback=initMap">
+    </script>
+</div>
+{% endblock %}
+{% block js%}
+
+{% endblock%}
+
+
+{% block css%}
+    <style>
+       #map {
+        height: 700px;
+        width: 100%;
+       }
+    </style>
+    {% include_chart_jscss %}
+    {# Jquery CDN : Needed when using jquery_on_ready=True #}
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    {% load_chart charttype chartdata chartcontainer extra %}
+    {% load_chart charttype1 chartdata1 chartcontainer1 extra1 %}
+{% endblock %}
