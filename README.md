@@ -1,5 +1,6 @@
-
-
+部署纪要：
+1. django-version=1.8.0
+2. mysqldump websitedb -uroot -p123 --add-drop-table | mysql -h 115.146.94.53 websitedb -u root -p --port=3308
 [使用Docker部署vmaig_blog]
 
 #更新日志
