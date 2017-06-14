@@ -1,15 +1,6 @@
-vmaig.com 网站源码
-=================
-[![ENV](https://img.shields.io/badge/python-2.7%2C3.4-blue.svg)](https://github.com/billvsme/vmaig_blog)
-[![LICENSE](https://img.shields.io/badge/license-BSD-blue.svg)](https://github.com/billvsme/vmaig_blog/blob/master/LICENSE)
-[![Travis](https://img.shields.io/travis/billvsme/vmaig_blog.svg)](https://travis-ci.org/billvsme/vmaig_blog)
-[![Docker Stars](https://img.shields.io/docker/stars/billvsme/vmaig_blog.svg)](https://hub.docker.com/r/billvsme/vmaig_blog/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/billvsme/vmaig_blog.svg)](https://hub.docker.com/r/billvsme/vmaig_blog/)
-#有问题欢迎加qq群
-vmaig qq群: 458788510  
-我的qq: 994171686  
 
-[使用Docker部署vmaig_blog](http://vmaig.com/article/deplay_vmaig_blog.html)
+
+[使用Docker部署vmaig_blog]
 
 #更新日志
 2015/5/15 从django1.6 升级到 django1.8 (还保留django1.6分支)  
@@ -19,26 +10,8 @@ vmaig qq群: 458788510
 2016/3/22 添加Dockerfile，使用Docker部署本博客  
 
 #概述
-vmaig\_blog 是一个基于  **Django1.8**  跟  **Bootstrap3**  开发的 **博客系统** ，实现了一个博客完整的功能。https://vmaig.com 就是基于vmaig\_blog 搭建的。
+vmaig\_blog 是一个基于  **Django1.8**  跟  **Bootstrap3**  开发的 **后台系统** ，实现了一个博客完整的功能。
 #功能
-1. 分析报告,分类,专栏的添加，删除，修改。支持**tinymce**富文本编辑器。支持分析报告中代码**高亮**。
-2. 实现**用户注册,登陆,修改密码,忘记重置密码**。通过**邮箱**通知注册用户, 用户忘记密码基于邮件（需要在setting.py设置好邮箱)。
-3. 实现**用户头像**，用户可以上传头像，然后编辑头像大小，然后保存，头像可以存在本地，也可自动保存在**七牛**云中（需要在setting.py 中设置好七牛的相关配置, 并修改相关代码）。
-4. **支持反馈**，实现了一个独立的反馈系统。
-5. 首页支持显示**轮播**，显示最新反馈，显示人气最高的分析报告。
-6. 首页支持显示**标签云**，拥有一个非常酷炫的便签云。
-7. 拥有一个**动态加载**的“全部分析报告”板块 可以显示所有分析报告分类，可以按照浏览数或者时间排序显示分析报告。
-8. 拥有一个以**时间轴**显示的非常酷炫的“新闻”板块，你可以每天在后台添加新闻。
-9. 支持**手机浏览**，对手机浏览进行了调整。
-
-#Demo
-https://vmaig.com   
-
-#预览
-![首页](http://vmaig.qiniudn.com/screenshot/vmaig_01.jpg)
-![头像](http://vmaig.qiniudn.com/screenshot/vmaig_02.jpg)
-![反馈](http://vmaig.qiniudn.com/screenshot/vmaig_03.jpg)
-![新闻](http://vmaig.qiniudn.com/screenshot/vmaig_news.jpg)
 
 #安装运行
 安装virtualenv :
